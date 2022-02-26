@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 # Change obs-plugintemplate to your plugin's name in a machine-readable format
 # (e.g.: obs-myawesomeplugin) and set 
-project(obs-sharedmemory VERSION 1.0.0)
+project(obs-plugintemplate VERSION 1.0.0)
 add_library(${CMAKE_PROJECT_NAME} MODULE)
 
 set(PLUGIN_AUTHOR "Marzocchi Alessandro")
@@ -21,9 +21,13 @@ target_sources(${CMAKE_PROJECT_NAME}
 		src/SharedImage/sharedimage.c
 		src/SharedImage/arch/sharedmemwin.c)
 
-#TODO
-#find_package(libobs REQUIRED)
-#include(external/ObsPluginHelpers.cmake)
+# /!\ TAKE NOTE: No need to edit things past this point /!\
+
+find_package(libobs REQUIRED)
+find_package(obs-frontend-api REQUIRED)
+include(external/ObsPluginHelpers.cmake)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
 
 
 configure_file(
@@ -39,11 +43,17 @@ target_sources(${CMAKE_PROJECT_NAME}
 target_include_directories(${CMAKE_PROJECT_NAME}
 	PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
-#TODO
-#target_link_libraries(${CMAKE_PROJECT_NAME}
-#	PRIVATE
-#		OBS::libobs)
+target_link_libraries(${CMAKE_PROJECT_NAME}
+	PRIVATE
+		OBS::libobs
+		OBS::obs-frontend-api
+		Qt5::Core
+		Qt5::Widgets)
 
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
+	AUTOMOC ON
+	AUTOUIC ON
+	AUTORCC ON)
 
 target_compile_features(${CMAKE_PROJECT_NAME}
 	PRIVATE
@@ -67,10 +77,11 @@ if(OS_WINDOWS)
 				/MP
 				/d2FH4-)
 	endif()
-        target_compile_definitions(${CMAKE_PROJECT_NAME}
-          PUBLIC
-          SHAREDMEM_WIN32
-        )
+	target_compile_definitions(${CMAKE_PROJECT_NAME}
+        PUBLIC
+        SHAREDMEM_WIN32
+    )
+
 # --- End of section ---
 
 # -- macOS specific build settings and tasks --
@@ -115,5 +126,4 @@ else()
 endif()
 # --- End of section ---
 
-#ToAdd
-#setup_plugin_target(${CMAKE_PROJECT_NAME})
+setup_plugin_target(${CMAKE_PROJECT_NAME})
