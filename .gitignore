@@ -12,5 +12,5 @@
 # ignore generated files
 *.generated.*
 
-# Qt creator .user
+# Qt .user
 *.user
