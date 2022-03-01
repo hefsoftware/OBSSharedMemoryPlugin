@@ -30,6 +30,9 @@ set(PLUGIN_HEADERS
 	)
 
 add_compile_definitions(SHAREDMEM_WIN32)
+if (WIN32 OR APPLE)
+add_compile_definitions(UNICODE)
+endif()
 
 # TAKE NOTE: No need to edit things past this point
 if(${PLUGIN_NEED_QT})
