@@ -29,6 +29,8 @@ set(PLUGIN_HEADERS
 	"${CMAKE_SOURCE_DIR}/src/SharedImage/internal/sharedmeminternal.h"
 	)
 
+add_compile_definitions(SHAREDMEM_WIN32)
+
 # TAKE NOTE: No need to edit things past this point
 if(${PLUGIN_NEED_QT})
   set(CMAKE_PREFIX_PATH "${QTDIR}")

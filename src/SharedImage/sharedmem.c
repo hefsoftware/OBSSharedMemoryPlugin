@@ -8,6 +8,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "sharedmem.h"
 #include "internal/sharedmeminternal.h"
 #define CLEAR_ERROR(memory) memory->message[0]='\0'

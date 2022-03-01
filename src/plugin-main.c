@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-#include "sharedmemimage.h"
-#include "libobs/obs-module.h"
-#include "libobs/obs-source.h"
-
+#include "plugin-macros.generated.h"
+#include "SharedImage/sharedimage.h"
+#include <obs-module.h>
+#include <obs-source.h>
 /* Defines common functions (required) */
 OBS_DECLARE_MODULE()
 
