@@ -314,7 +314,7 @@ bool sharedMemSetPageN(struct SharedMemory *shared, uint32_t page, uint32_t stat
       SET_ERROR(shared, "Process does not own the page");
     else
     {
-      sharedMemPageLibHeader(shared, page)->state=(shared->server?state:-state);
+      sharedMemPageLibHeader(shared, page)->state=(shared->server?(int)state:-(int)state);
       CLEAR_ERROR(shared);
       ret=true;
     }
@@ -436,8 +436,8 @@ int32_t sharedMemGetFirstPageN(struct SharedMemory *shared, uint32_t state, int3
         start=-1;
         break;
       }
-      uint32_t curState=sharedMemPageLibHeader(shared, start)->state;
-      if((state==curState || state==-curState) && sharedMemIsServer(curState)==shared->server)
+      int32_t curState=sharedMemPageLibHeader(shared, start)->state;
+      if((((int32_t)state)==curState || ((int32_t)state)==-curState) && sharedMemIsServer(curState)==shared->server)
         break;
     }
   }

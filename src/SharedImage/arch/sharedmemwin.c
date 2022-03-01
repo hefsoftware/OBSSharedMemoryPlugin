@@ -60,7 +60,7 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
   if(ret) // Event 0
   {
     HANDLE hEvent=NULL;
-    char tempEventName[strlen(utf8Name)+5];
+    char *tempEventName=(char *)malloc(strlen(utf8Name)+5);
     snprintf(tempEventName, sizeof(tempEventName), "shd%sA", utf8Name);
     int ncharsEvent=MultiByteToWideChar(CP_UTF8, 0, tempEventName, -1, NULL, 0);
     if(ncharsEvent>100)
@@ -70,7 +70,7 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
     }
     else
     {
-      wchar_t eventName[ncharsEvent];
+      wchar_t *eventName=(wchar_t *)malloc(sizeof(wchar_t)*ncharsEvent);
       if(MultiByteToWideChar(CP_UTF8, 0, tempEventName, -1, eventName, ncharsEvent)!=ncharsEvent)
       {
         snprintf(shared->message, sizeof(shared->message), "Error in MultiByteToWideChar for event0");
@@ -89,12 +89,14 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
         shared->arch.eventFromOther=hEvent;
       else
         shared->arch.eventToOther=hEvent;
+      free(eventName);
     }
+    free(tempEventName);
   }
   if(ret) // Event 0
   {
     HANDLE hEvent=NULL;
-    char tempEventName[strlen(utf8Name)+5];
+    char *tempEventName=(char *)malloc(strlen(utf8Name)+5);
     snprintf(tempEventName, sizeof(tempEventName), "shd%sB", utf8Name);
     int ncharsEvent=MultiByteToWideChar(CP_UTF8, 0, tempEventName, -1, NULL, 0);
     if(ncharsEvent>100)
@@ -104,7 +106,7 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
     }
     else
     {
-      wchar_t eventName[ncharsEvent];
+      wchar_t *eventName=(wchar_t *)malloc(sizeof(wchar_t)*ncharsEvent);
       if(MultiByteToWideChar(CP_UTF8, 0, tempEventName, -1, eventName, ncharsEvent)!=ncharsEvent)
       {
         snprintf(shared->message, sizeof(shared->message), "Error in MultiByteToWideChar for eventB");
@@ -123,11 +125,13 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
         shared->arch.eventToOther=hEvent;
       else
         shared->arch.eventFromOther=hEvent;
+      free(eventName);
     }
+    free(tempEventName);
   }
   if(ret)
   {
-    char tempSharedName[strlen(utf8Name)+5];
+    char *tempSharedName=(char *)malloc(strlen(utf8Name)+5);
     snprintf(tempSharedName, sizeof(tempSharedName), "shd%sD", utf8Name);
     int ncharsShared=MultiByteToWideChar(CP_UTF8, 0, tempSharedName, -1, NULL, 0);
     if(ncharsShared>100)
@@ -137,7 +141,7 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
     }
     else
     {
-      wchar_t sharedName[ncharsShared];
+      wchar_t *sharedName=(wchar_t *)malloc(sizeof(wchar_t)*ncharsShared);
       if(MultiByteToWideChar(CP_UTF8, 0, tempSharedName, -1, sharedName, ncharsShared)!=ncharsShared)
       {
         snprintf(shared->message, sizeof(shared->message), "Error in MultiByteToWideChar for event1");
@@ -238,7 +242,9 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
           shared->needInitialize=true;
         }
       }
+      free(sharedName);
     }
+    free(tempSharedName);
   }
   if(!ret)
     sharedMemCloseArch(shared);
