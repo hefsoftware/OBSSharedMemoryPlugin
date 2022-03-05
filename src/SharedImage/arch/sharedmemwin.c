@@ -51,8 +51,8 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
 {
   bool ret=true;
   uint8_t *pBuf=NULL;
-
-  if(strlen(utf8Name)>NAME_MAX_LENGTH)
+  int utf8Length=strlen(utf8Name)+5;
+  if(utf8Length>NAME_MAX_LENGTH)
   {
     snprintf(shared->message, sizeof(shared->message), "Shared memory name too long");
     ret=false;
@@ -60,8 +60,8 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
   if(ret) // Event 0
   {
     HANDLE hEvent=NULL;
-    char *tempEventName=(char *)malloc(strlen(utf8Name)+5);
-    snprintf(tempEventName, sizeof(tempEventName), "shd%sA", utf8Name);
+    char *tempEventName=(char *)malloc(utf8Length);
+    snprintf(tempEventName, utf8Length, "shd%sA", utf8Name);
     int ncharsEvent=MultiByteToWideChar(CP_UTF8, 0, tempEventName, -1, NULL, 0);
     if(ncharsEvent>100)
     {
@@ -96,8 +96,8 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
   if(ret) // Event 0
   {
     HANDLE hEvent=NULL;
-    char *tempEventName=(char *)malloc(strlen(utf8Name)+5);
-    snprintf(tempEventName, sizeof(tempEventName), "shd%sB", utf8Name);
+    char *tempEventName=(char *)malloc(utf8Length);
+    snprintf(tempEventName, utf8Length, "shd%sB", utf8Name);
     int ncharsEvent=MultiByteToWideChar(CP_UTF8, 0, tempEventName, -1, NULL, 0);
     if(ncharsEvent>100)
     {
@@ -131,8 +131,8 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
   }
   if(ret)
   {
-    char *tempSharedName=(char *)malloc(strlen(utf8Name)+5);
-    snprintf(tempSharedName, sizeof(tempSharedName), "shd%sD", utf8Name);
+    char *tempSharedName=(char *)malloc(utf8Length);
+    snprintf(tempSharedName, utf8Length, "shd%sD", utf8Name);
     int ncharsShared=MultiByteToWideChar(CP_UTF8, 0, tempSharedName, -1, NULL, 0);
     if(ncharsShared>100)
     {
@@ -248,7 +248,7 @@ bool sharedMemCreateArch(const char *utf8Name, struct SharedMemory *shared, uint
   }
   if(!ret)
     sharedMemCloseArch(shared);
-  return true;
+  return ret;
 }
 
 void *sharedMemNotificationHandle(struct SharedMemory *memory)

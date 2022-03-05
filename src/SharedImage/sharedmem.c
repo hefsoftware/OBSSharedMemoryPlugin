@@ -186,25 +186,30 @@ bool sharedMemCreate(const char *utf8Name, const SharedMemInfo *info, struct Sha
       SET_ERROR(sharedRet, "Invalid layout info");
     else if(sharedMemCreateArch(utf8Name, sharedRet, layout.fullSize, server))
     {
-      sharedRet->server=server;
-      if(sharedRet->needInitialize)
+      if(!sharedRet->data)
+        SET_ERROR(sharedRet, "BUG! sharedMemCreateArch returned true but set no data pointer");
+      else
       {
-        sharedRet->data->state=Unitialized; // Should already be zero, but for safety
-        sharedRet->data->info=*info;
-        sharedRet->data->layout=layout;
-        sharedRet->data->info.headerAlign=alignOf(sharedRet->data->info.headerAlign);
-        sharedRet->data->info.pageHeaderAlign=alignOf(sharedRet->data->info.pageHeaderAlign);
-        sharedRet->data->info.pageAlign=alignOf(sharedRet->data->info.pageAlign);
-        uint8_t *pBuf=(uint8_t *)sharedRet->data;
-        for(unsigned i=0;i<sharedRet->data->info.numPages;i++)
+        sharedRet->server=server;
+        if(sharedRet->needInitialize)
         {
-          struct SharedMemPageHeader *header=(struct SharedMemPageHeader *)(pBuf+layout.firstPageStart+i*layout.wholePageSize+layout.libPageHeaderOffset);
-          header->state=1; // Free to server
+          sharedRet->data->state=Unitialized; // Should already be zero, but for safety
+          sharedRet->data->info=*info;
+          sharedRet->data->layout=layout;
+          sharedRet->data->info.headerAlign=alignOf(sharedRet->data->info.headerAlign);
+          sharedRet->data->info.pageHeaderAlign=alignOf(sharedRet->data->info.pageHeaderAlign);
+          sharedRet->data->info.pageAlign=alignOf(sharedRet->data->info.pageAlign);
+          uint8_t *pBuf=(uint8_t *)sharedRet->data;
+          for(unsigned i=0;i<sharedRet->data->info.numPages;i++)
+          {
+            struct SharedMemPageHeader *header=(struct SharedMemPageHeader *)(pBuf+layout.firstPageStart+i*layout.wholePageSize+layout.libPageHeaderOffset);
+            header->state=1; // Free to server
+          }
+          sharedRet->data->version=SHAREDMEM_VERSION;
+          sharedRet->data->magic=SHAREDMEM_MAGIC;
         }
-        sharedRet->data->version=SHAREDMEM_VERSION;
-        sharedRet->data->magic=SHAREDMEM_MAGIC;
+        ret=true;
       }
-      ret=true;
     }
   }
   return ret;

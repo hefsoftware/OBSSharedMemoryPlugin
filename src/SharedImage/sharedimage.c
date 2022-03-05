@@ -34,13 +34,15 @@ bool sharedImageCheckInitialized(struct SharedImage *image)
 {
   struct SharedMemory *shared=(struct SharedMemory *)image;
   SharedImageLocal *local=(SharedImageLocal *)sharedMemLocal(shared);
-  if(!local->initialized && sharedMemIsInitialized(shared))
+  bool ret=local->initialized;
+  if(local && !local->initialized && sharedMemIsInitialized(shared))
   {
     local->initialized=true;
     SharedImageHeader *header=(SharedImageHeader *)sharedMemHeader(shared);
     local->valid=(header->magic==SHAREDMEMIMAGE_MAGIC) && (header->version==SHAREDMEMIMAGE_VERSION);
+    ret=local->valid;
   }
-  return local->valid;
+  return ret;
 }
 
 bool sharedImageCreate(const char *utf8Name, struct SharedImage **image, uint32_t numPixels, bool generator)
@@ -56,24 +58,20 @@ bool sharedImageCreate(const char *utf8Name, struct SharedImage **image, uint32_
   bool retValue;
   retValue=sharedMemCreate(utf8Name, &info, &ret, sizeof(SharedImageLocal), generator);
   *image=(struct SharedImage *)ret;
-  if(ret)
+  if(retValue)
   {
     SharedImageLocal *local=(SharedImageLocal *)sharedMemLocal(ret);
     local->initialized=local->valid=false;
-    if(retValue)
+    local->lastPage=-1;
+    volatile SharedImageHeader *header=(volatile SharedImageHeader *)sharedMemHeader(ret);
+    if(sharedMemMustInitialize(ret))
     {
-      SharedImageLocal *local=(SharedImageLocal *)sharedMemLocal(ret);
-      local->lastPage=-1;
-      volatile SharedImageHeader *header=(volatile SharedImageHeader *)sharedMemHeader(ret);
-      if(sharedMemMustInitialize(ret))
-      {
-        header->magic=SHAREDMEMIMAGE_MAGIC;
-        header->version=SHAREDMEMIMAGE_VERSION;
-        for(unsigned i=0;i<info.numPages;i++)
-          sharedMemInitPageClient(ret, i);
-        sharedMemEndInitialization(ret);
-        local->initialized=local->valid=true;
-      }
+      header->magic=SHAREDMEMIMAGE_MAGIC;
+      header->version=SHAREDMEMIMAGE_VERSION;
+      for(unsigned i=0;i<info.numPages;i++)
+        sharedMemInitPageClient(ret, i);
+      sharedMemEndInitialization(ret);
+      local->initialized=local->valid=true;
     }
   }
   return retValue;
